@@ -1,6 +1,6 @@
 const state = {
   token: localStorage.getItem("bluestar_token"),
-  view: "tasks",
+  view: "tutorials",
   cache: {},
   skillFilter: "全部",
   skillQuery: ""
@@ -245,6 +245,58 @@ async function renderCredits() {
     `<div class="content-grid"><section class="panel"><div class="panel-heading"><h2>使用分布</h2><span class="tag">近 30 天</span></div><div class="panel-body">${data.usage.map((item) => `<div class="list-row" style="padding:14px 0"><div><strong>${esc(item.label)}</strong><div class="task-meta">${item.value.toLocaleString()} 點</div></div><div style="width:45%"><div class="progress-track"><div class="progress-bar" style="width:${Math.round(item.value / total * 100)}%"></div></div></div></div>`).join("")}</div></section><section class="panel"><div class="panel-heading"><h2>充值包</h2><span class="tag">展示版</span></div><div class="panel-body"><div class="credit-pack"><strong>5,000 點</strong><button class="text-button" onclick="notify('5,000 點方案已選取')">選取</button></div><div class="credit-pack"><strong>20,000 點</strong><button class="text-button" onclick="notify('20,000 點方案已選取')">選取</button></div><div class="credit-pack"><strong>企業自訂</strong><button class="text-button" onclick="notify('企業點數洽詢已準備')">洽詢</button></div></div></section></div>`;
 }
 
+function renderMeeting() {
+  genericView("蝦會議", "錄音、逐字稿、會議摘要、待辦與匯出會集中在這裡。",
+    `<div class="dashboard-grid">${stat("逐字稿", "即時", "語音轉文字")}${stat("重點摘要", "自動", "決議與待辦")}${stat("匯出", "PDF / DOCX", "會議紀錄")}${stat("同步", "日曆", "Google / Outlook")}</div>` +
+    `<div class="content-grid"><section class="panel panel-body"><div class="eyebrow">MEETING INPUT</div><h2>上傳錄音或貼上會議連結</h2><p class="soft-text">支援會議錄音、影片檔、逐字稿與線上會議連結。蝦妹會整理摘要、行動項目、負責人與截止時間。</p><div class="form-inline"><input placeholder="貼上會議連結或檔名" /><button class="button button-primary" onclick="notify('會議分析入口已準備')">開始分析</button></div></section><section class="panel"><div class="panel-heading"><h2>會議模板</h2><span class="tag">研究後補齊</span></div><div class="panel-body"><div class="check-row">客戶需求訪談<span>摘要＋需求表</span></div><div class="check-row">內部週會<span>待辦＋風險</span></div><div class="check-row">課程諮詢<span>重點＋回覆稿</span></div></div></section></div>`);
+}
+
+function renderRailway() {
+  genericView("蝦鐵路", "把任務從接收、研究、執行、驗證到交付，整理成可追蹤的工作流軌道。",
+    `<section class="panel railway-panel">${railwayStages.map((stage, index) => `<div class="railway-step"><div class="railway-node">${index + 1}</div><div><h3>${esc(stage.title)}</h3><p>${esc(stage.detail)}</p><span class="status status-completed">${esc(stage.status)}</span></div></div>`).join("")}</section>` +
+    `<section class="panel"><div class="panel-heading"><h2>常用軌道</h2><span class="tag">可直接套用</span></div>${moduleGrid([
+      { icon: "🎨", title: "文案到海報", detail: "確認清單、image2 / ComfyUI 路由、原圖驗證與文件模式回傳。", tag: "圖片" },
+      { icon: "🎬", title: "素材到短影音", detail: "分析影片、轉字幕、封面、背景音樂、直式 MP4 輸出。", tag: "影片" },
+      { icon: "🌐", title: "網站更新部署", detail: "修改真實檔案、本機驗證、提交 GitHub、驗證公開網址。", tag: "網站" },
+      { icon: "🛒", title: "蝦皮賣家", detail: "申請、EasyBoss 授權、商品採集、繁中化、合規與上架檢查。", tag: "商務" }
+    ])}</section>`);
+}
+
+function renderPricing() {
+  genericView("訂閱方案", "依照使用量升級你的工作能力。",
+    `<div class="pricing-grid"><article class="price-card"><div class="price-label">目前可展示</div><h3>免費版</h3><div class="price">$0 <small>/ 月</small></div><ul><li>基礎任務與教學</li><li>少量蝦飼料</li><li>單人工作區</li><li>核心技能體驗</li></ul><button class="button button-ghost" onclick="notify('免費版已選取')">使用免費版</button></article><article class="price-card price-card-featured"><div class="price-label">推薦</div><h3>專業版</h3><div class="price">$25 <small>/ 月</small></div><ul><li>完整技能市集</li><li>較高並行任務</li><li>圖片、影片與網站工作流</li><li>優先任務追蹤</li></ul><button class="button button-primary" onclick="notify('專業版升級入口已準備')">升級專業版</button></article><article class="price-card"><div class="price-label">團隊</div><h3>企業版</h3><div class="price">客製</div><ul><li>多人座席</li><li>集中計費</li><li>權限控管</li><li>企業流程客製</li></ul><button class="button button-ghost" onclick="notify('企業洽詢入口已準備')">聯繫我們</button></article></div>` +
+    `<section class="panel table-wrap plan-table"><table class="data-table"><thead><tr><th>功能</th><th>免費版</th><th>專業版</th><th>企業版</th></tr></thead><tbody><tr><td>蝦任務</td><td>基礎</td><td>完整</td><td>團隊管理</td></tr><tr><td>蝦技能</td><td>體驗</td><td>完整市集</td><td>客製技能</td></tr><tr><td>蝦排程</td><td>少量</td><td>多排程</td><td>集中監控</td></tr><tr><td>資料整合</td><td>手動</td><td>Drive / Notion / Sheets</td><td>企業系統串接</td></tr></tbody></table></section>`);
+}
+
+function renderUnlock() {
+  genericView("功能解鎖", "把原站研究到的能力整理成可啟用模組，方便後續逐步接 API。",
+    `<div class="dashboard-grid">${stat("已整理功能", researchedModules.length, "核心能力")}${stat("通訊整合", "LINE / TG", "可擴充")}${stat("資料整合", "Drive / Notion", "展示入口")}${stat("交付格式", "8 類", "檔案與網址")}</div>` +
+    moduleGrid(researchedModules));
+}
+
+function renderEnterprise() {
+  genericView("企業／團隊", "管理團隊座席、集中計費、權限控管與企業客製流程。",
+    `<div class="content-grid"><section class="panel panel-body"><div class="eyebrow">TEAM WORKSPACE</div><h2>把藍星蝦妹帶進團隊</h2><p class="soft-text">可設定成員角色、限制可用技能、分配蝦飼料、建立共同知識庫，並保留任務交付紀錄。</p><div class="form-inline"><input placeholder="輸入企業名稱" /><button class="button button-primary" onclick="notify('企業工作區建立流程已準備')">建立工作區</button></div></section><section class="panel"><div class="panel-heading"><h2>企業控管</h2><span class="tag">細節已補</span></div><div class="panel-body"><div class="check-row">成員與角色<span>Owner / Admin / Member</span></div><div class="check-row">技能權限<span>依角色開放</span></div><div class="check-row">集中計費<span>點數與訂閱</span></div><div class="check-row">交付稽核<span>任務與檔案紀錄</span></div></div></section></div>`);
+}
+
+function renderTutorials() {
+  genericView("蝦教室", "從入門到建立自己的 AI 工作流，完成教學可得蝦飼料獎勵。",
+    `<div class="dashboard-grid">${stat("教學單元", lessons.length, "已整理")}${stat("完成獎勵", "蝦飼料", "完成教學可得")}${stat("新手路線", "5 步", "任務到交付")}${stat("支援形式", "圖文 / 影片", "可擴充")}</div>` +
+    `<section class="panel lesson-list">${lessons.map((item) => `<article class="lesson-row"><div><h3>${esc(item.title)}</h3><p>${esc(item.detail)}</p><div class="progress-track"><div class="progress-bar" style="width:${item.progress}%"></div></div></div><button class="button button-ghost button-small" onclick="notify('教學單元已開啟')">開始</button></article>`).join("")}</section>`);
+}
+
+function renderOnboarding() {
+  genericView("教學引導", "把新使用者帶完帳號、任務、技能、排程與交付設定。",
+    `<section class="panel onboarding-steps"><div class="onboarding-step done"><strong>1. 建立帳號</strong><span>電子郵件、Google 或 FaceID 入口</span></div><div class="onboarding-step done"><strong>2. 選擇語言</strong><span>繁體中文為預設顯示</span></div><div class="onboarding-step"><strong>3. 建立第一個任務</strong><span>指定結果、限制與交付格式</span></div><div class="onboarding-step"><strong>4. 啟用技能</strong><span>做圖、影片、網站、文件、語音</span></div><div class="onboarding-step"><strong>5. 綁定通道</strong><span>Telegram、LINE、Google、Notion</span></div></section>` +
+    `<div class="empty-state panel">完成全部引導後，可解鎖新手蝦飼料獎勵。<br><button class="button button-primary" style="margin-top:18px" onclick="notify('教學獎勵領取入口已準備')">領取獎勵</button></div>`);
+}
+
+function renderSupport() {
+  genericView("Iris 客服", "把使用上的問題、建議與需求交給客服助理整理。",
+    `<div class="support-grid"><section class="panel iris-panel"><div class="iris-avatar">Iris</div><h2>客服助理已待命</h2><p class="soft-text">可處理客訴回覆、功能問題、訂閱方案、交付遺漏、權限開通與網站部署問題。</p><div class="quick-grid compact"><button class="quick-card" onclick="notify('客訴回覆模板已準備')"><span>😤</span><strong>客訴回覆</strong></button><button class="quick-card" onclick="notify('缺檔補送流程已準備')"><span>📎</span><strong>缺檔補送</strong></button><button class="quick-card" onclick="notify('方案諮詢流程已準備')"><span>👑</span><strong>方案諮詢</strong></button></div></section><section class="panel panel-body"><div class="field"><label>主旨</label><input id="support-subject" placeholder="例如：我想了解企業版" /></div><div class="field"><label>內容</label><textarea id="support-message" placeholder="請描述你的問題或需求"></textarea></div><button class="button button-primary" id="send-support">送出訊息</button></section></div>`);
+  document.querySelector("#send-support").onclick = () => notify("客服訊息已送出");
+}
+
 function genericView(title, subtitle, body) {
   root.innerHTML = layout(title, subtitle) + body;
 }
@@ -258,15 +310,16 @@ async function renderView(view) {
     if (view === "schedules") return renderSchedules();
     if (view === "files") return renderFiles();
     if (view === "credits") return renderCredits();
-    if (view === "pricing") return genericView("訂閱方案", "依照使用量升級你的工作能力。", `<div class="pricing-grid"><article class="price-card"><div class="price-label">目前方案</div><h3>專業版</h3><div class="price">$25 <small>/ 月</small></div><ul><li>50,000 蝦飼料點數</li><li>10 個並行任務</li><li>完整模型與技能</li></ul><button class="button button-primary" onclick="notify('升級流程已準備')">管理方案</button></article><article class="price-card price-card-featured"><div class="price-label">推薦</div><h3>企業版</h3><div class="price">客製</div><ul><li>多人座席</li><li>集中計費</li><li>團隊管理儀表板</li></ul><button class="button button-ghost" onclick="notify('已記錄企業諮詢需求')">聯繫我們</button></article></div>`);
+    if (view === "pricing") return renderPricing();
     if (view === "admin") return renderAdmin();
     if (view === "settings") return renderSettings();
-    if (view === "meeting") return genericView("蝦會議", "錄音、逐字稿與會議重點會集中在這裡。", `<div class="empty-state panel">目前沒有待處理的會議檔案。<br><button class="button button-primary" style="margin-top:18px" onclick="notify('會議上傳入口已準備')">上傳錄音</button></div>`);
-    if (view === "tracking") return genericView("追蹤中心", "管理價格追蹤、投資追蹤與長期觀察項目。", `<div class="empty-state panel">尚未建立追蹤項目。<br><button class="button button-primary" style="margin-top:18px" onclick="notify('追蹤項目建立入口已準備')">新增追蹤</button></div>`);
-    if (view === "unlock") return genericView("功能解鎖", "查看目前方案可用功能與尚未開放的能力。", `<div class="feature-grid"><article class="feature-card"><span class="feature-icon">◈</span><h3>Google Drive</h3><p>把蝦妹產出的文件整理到你的雲端硬碟。</p></article><article class="feature-card"><span class="feature-icon">◎</span><h3>Notion 工作區</h3><p>搜尋、整理與建立知識文件。</p></article><article class="feature-card"><span class="feature-icon">✉</span><h3>Email 成果寄送</h3><p>把任務結果自動寄到指定信箱。</p></article></div>`);
-    if (view === "enterprise") return genericView("企業／團隊", "管理團隊座席、集中計費與企業工作流。", `<section class="panel panel-body"><div class="eyebrow">TEAM WORKSPACE</div><h2>把蝦妹帶進團隊</h2><p style="color:var(--ink-soft);line-height:1.8">目前工作區為單人模式。建立企業方案後，可邀請成員、配置技能與查看團隊用量。</p><button class="button button-primary" onclick="notify('企業邀請功能已準備')">建立企業工作區</button></section>`);
-    if (view === "tutorials") return genericView("蝦教室", "從入門到建立自己的 AI 工作流。", `<div class="feature-grid"><article class="feature-card feature-card-wide"><span class="feature-icon">◎</span><h3>第一堂：交代一個清楚的任務</h3><p>學會把目標、限制與交付格式說清楚，讓蝦妹一次完成。</p><div class="feature-tags"><span>入門</span><span>尚未完成</span></div></article><article class="feature-card"><span class="feature-icon">✦</span><h3>技能安裝</h3><p>學會挑選與管理技能。</p></article></div>`);
-    if (view === "support") return genericView("站內客服中心", "把使用上的問題、建議與需求交給團隊。", `<section class="panel panel-body"><div class="field"><label>主旨</label><input id="support-subject" placeholder="例如：我想了解企業版" /></div><div class="field"><label>內容</label><textarea id="support-message" placeholder="請描述你的問題或需求"></textarea></div><button class="button button-primary" id="send-support">送出訊息</button></section>`);
+    if (view === "meeting") return renderMeeting();
+    if (view === "tracking" || view === "railway") return renderRailway();
+    if (view === "unlock") return renderUnlock();
+    if (view === "enterprise") return renderEnterprise();
+    if (view === "tutorials") return renderTutorials();
+    if (view === "onboarding") return renderOnboarding();
+    if (view === "support") return renderSupport();
   } catch (error) { handleError(error); }
 }
 
@@ -277,7 +330,16 @@ async function renderAdmin() {
 
 async function renderSettings() {
   const data = await api("/api/settings");
-  genericView("蝦設定", "管理顯示、通知與工作區偏好。", `<div class="settings-grid"><section class="setting-block"><h3>基本偏好</h3><div class="field"><label>顯示語言</label><select id="setting-language"><option ${data.settings.language === "繁體中文" ? "selected" : ""}>繁體中文</option><option>简体中文</option></select></div><div class="field"><label>時區</label><select id="setting-timezone"><option>Asia/Taipei</option><option>Asia/Shanghai</option></select></div><button class="button button-primary" id="save-settings">儲存設定</button></section><section class="setting-block"><h3>通知與工作區</h3><div class="toggle-row">任務完成通知<button class="toggle ${data.settings.notifications ? "on" : ""}" id="toggle-notifications"></button></div><div class="toggle-row">緊湊列表模式<button class="toggle ${data.settings.compactMode ? "on" : ""}" id="toggle-compact"></button></div></section></div>`);
+  genericView("蝦設定", "管理顯示、通知、模型偏好、頻道整合與安全交付規則。",
+    `<div class="settings-grid"><section class="setting-block"><h3>基本偏好</h3><div class="field"><label>顯示語言</label><select id="setting-language"><option ${data.settings.language === "繁體中文" ? "selected" : ""}>繁體中文</option><option>English</option><option>日本語</option></select></div><div class="field"><label>時區</label><select id="setting-timezone"><option>Asia/Taipei</option><option>Asia/Shanghai</option></select></div><div class="field"><label>預設模型</label><select><option>GPT-5.6</option><option>GPT-5.5</option><option>Gemini</option><option>Claude</option></select></div><button class="button button-primary" id="save-settings">儲存設定</button></section><section class="setting-block"><h3>通知與工作區</h3><div class="toggle-row">任務完成通知<button class="toggle ${data.settings.notifications ? "on" : ""}" id="toggle-notifications"></button></div><div class="toggle-row">緊湊列表模式<button class="toggle ${data.settings.compactMode ? "on" : ""}" id="toggle-compact"></button></div><div class="toggle-row">交付前驗證<button class="toggle on"></button></div><div class="toggle-row">同源回傳鎖定<button class="toggle on"></button></div></section></div>` +
+    `<section class="panel integration-panel"><div class="panel-heading"><h2>通道與資料整合</h2><span class="tag">原站功能已補</span></div>${moduleGrid([
+      { icon: "💬", title: "LINE 官方帳號", detail: "接收客戶訊息、客服回覆與任務通知。", tag: "待綁定" },
+      { icon: "✈️", title: "Telegram", detail: "同源收件、文件模式回傳與任務追蹤。", tag: "已支援" },
+      { icon: "🗓️", title: "Google 日曆", detail: "排程、會議與提醒同步。", tag: "待綁定" },
+      { icon: "📄", title: "Notion", detail: "知識庫、SOP 與任務紀錄同步。", tag: "待綁定" },
+      { icon: "☁️", title: "Google Drive", detail: "成果檔案與素材備份。", tag: "待綁定" },
+      { icon: "✉️", title: "Outlook / Email", detail: "通知、報告與客戶回覆寄送。", tag: "待綁定" }
+    ])}</section>`);
   document.querySelector("#save-settings").onclick = async () => { await api("/api/settings", { method: "POST", body: JSON.stringify({ language: document.querySelector("#setting-language").value }) }); notify("設定已儲存"); };
   document.querySelectorAll(".setting-block .toggle").forEach((button) => button.onclick = () => button.classList.toggle("on"));
 }
@@ -350,7 +412,7 @@ function showLogin() {
     event.preventDefault();
       try {
         const data = await api("/api/auth/login", { method: "POST", body: JSON.stringify({ email: form.querySelector("#login-email").value, password: form.querySelector("#login-password").value }) });
-        state.token = data.token; localStorage.setItem("bluestar_token", state.token); modalRoot.innerHTML = ""; notify("登入成功"); renderView(state.view);
+        state.token = data.token; localStorage.setItem("bluestar_token", state.token); syncShell(data.user); modalRoot.innerHTML = ""; notify("登入成功"); renderView(state.view);
       } catch (error) { notify(error.message); }
   };
   modalRoot.querySelector("#google-login").onclick = () => notify("Google 登入入口已準備");
@@ -364,14 +426,16 @@ document.querySelectorAll(".nav-item").forEach((button) => button.onclick = () =
   renderView(button.dataset.view);
 });
 document.querySelector("#mobile-menu").onclick = () => document.querySelector(".sidebar").classList.toggle("open");
+document.querySelector("#language-select").onchange = (event) => notify(`顯示語言已切換為 ${event.target.value}`);
 document.querySelector("#logout").onclick = async () => { try { await api("/api/auth/logout", { method: "POST" }); } catch {} localStorage.removeItem("bluestar_token"); state.token = null; showLogin(); };
 document.querySelector("#profile-button").onclick = () => renderView("settings");
 
 async function boot() {
   try {
     if (!state.token) return showLogin();
-    await api("/api/auth/me");
-    await renderTasks();
+    const data = await api("/api/auth/me");
+    syncShell(data.user);
+    await renderView(state.view);
   } catch {
     localStorage.removeItem("bluestar_token");
     state.token = null;
