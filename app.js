@@ -12,6 +12,46 @@ const modalRoot = document.querySelector("#modal-root");
 const staticData = window.BLUESTAR_STATIC_DATA || null;
 let staticMode = location.protocol === "file:" || location.hostname.endsWith("github.io");
 
+const researchedModules = [
+  { icon: "💬", title: "LINE 深度整合", detail: "把官方帳號訊息、客戶問題與任務入口接到蝦妹，適合客服、銷售與社群營運。", tag: "通訊" },
+  { icon: "🗓️", title: "Google 日曆", detail: "讀取行程、建立提醒、安排會議與每日待辦，和蝦排程一起自動提醒。", tag: "行程" },
+  { icon: "📄", title: "Notion / 文件庫", detail: "把 SOP、課程、會議紀錄與品牌資料整理成可搜尋知識庫。", tag: "知識" },
+  { icon: "📊", title: "Sheets / Excel", detail: "處理表格、報表、庫存、點數與訂單資料，輸出圖表與摘要。", tag: "資料" },
+  { icon: "☁️", title: "Google Drive", detail: "集中存放任務成品、圖片、影片、PDF 與文件，保留可追溯資料來源。", tag: "檔案" },
+  { icon: "🧠", title: "RAG 記憶", detail: "讓蝦妹依你的固定規則、角色、素材與工作流回答，不混入舊任務。", tag: "記憶" },
+  { icon: "🎨", title: "圖片生成", detail: "支援海報、商品圖、教學圖、封面與社群圖，走確認、生成、驗證、回傳流程。", tag: "創作" },
+  { icon: "🎬", title: "影片生成與剪輯", detail: "支援分鏡、Seedance / ComfyUI 影片、短影音字幕、封面、配樂與成片輸出。", tag: "影片" },
+  { icon: "🤖", title: "多模型代理", detail: "依任務路由 GPT、Gemini、Claude、圖片模型與影片模型，保留執行紀錄。", tag: "模型" },
+  { icon: "🛡️", title: "安全沙箱", detail: "限制任務權限、交付對象、敏感資訊與外部連線，避免錯傳或外洩。", tag: "安全" },
+  { icon: "🛒", title: "購物與賣家工作流", detail: "支援蝦皮 / EasyBoss 流程研究、商品採集檢查、繁中化與上架前合規提醒。", tag: "商務" },
+  { icon: "🧾", title: "多格式輸出", detail: "依任務產出 PNG、MP4、MP3、PDF、DOCX、PPT、ZIP、網站與公開網址。", tag: "交付" }
+];
+
+const quickActions = [
+  { icon: "😤", title: "客訴回覆", detail: "整理客戶訊息、判斷情緒、生成可直接回覆的繁體中文版本。", message: "客訴回覆任務已建立" },
+  { icon: "📊", title: "每日日報", detail: "彙整指定資料來源，產出每日營運、行銷或市場摘要。", message: "每日日報排程已準備" },
+  { icon: "✏️", title: "自訂任務", detail: "把你的目標、素材、限制與交付格式交給蝦妹執行。", message: "自訂任務入口已開啟" },
+  { icon: "🎨", title: "海報做圖", detail: "文案轉圖、參考圖改版、教學圖與社群圖設計。", message: "海報做圖流程已準備" },
+  { icon: "🎬", title: "短影音", detail: "上字幕、封面、背景音樂、直式輸出與驗證。", message: "短影音工作流已準備" },
+  { icon: "🌐", title: "網站部署", detail: "修改網站、提交版本、公開部署並驗證最新網址。", message: "網站部署工作流已準備" }
+];
+
+const railwayStages = [
+  { title: "接收任務", detail: "來源可以是網站、Telegram、LINE、檔案、圖片、影片或語音。", status: "已研究" },
+  { title: "拆解步驟", detail: "依任務決定是否需要搜尋、登入、生成、剪輯、轉檔、部署或回傳。", status: "已做進去" },
+  { title: "選擇工具", detail: "依指定路由使用 image2、ComfyUI、Seedance、NotebookLM、GitHub Pages 等。", status: "已做進去" },
+  { title: "執行與驗證", detail: "完成後檢查尺寸、格式、可讀性、頁數、時長、公開網址或傳檔狀態。", status: "已做進去" },
+  { title: "交付回報", detail: "有檔案就同源文件模式回傳；網站就提供公開網址與本機路徑。", status: "已做進去" }
+];
+
+const lessons = [
+  { title: "第一堂：如何交代任務", detail: "目標、素材、限制、比例、交付格式一次講清楚。", progress: 100 },
+  { title: "第二堂：圖片與海報", detail: "image2、ComfyUI 與藍星圖片路由差異。", progress: 72 },
+  { title: "第三堂：影片與字幕", detail: "分鏡、圖生影片、短影音剪輯與封面。", progress: 58 },
+  { title: "第四堂：網站部署", detail: "本機修改、GitHub Pages、公開網址驗證。", progress: 44 },
+  { title: "第五堂：蝦皮賣家流程", detail: "EasyBoss、採集、認領、繁中化、合規與上架。", progress: 36 }
+];
+
 async function api(path, options = {}) {
   if (staticMode) return staticApi(path, options);
   const headers = { "content-type": "application/json", ...(options.headers || {}) };
@@ -113,17 +153,40 @@ function stat(label, value, hint) {
   return `<div class="stat-card"><small>${label}</small><strong>${value}</strong><small>${hint}</small></div>`;
 }
 
+function syncShell(user) {
+  if (!user) return;
+  document.querySelector("#credit-pill").textContent = `蝦飼料：${Number(user.credits || 0).toLocaleString()}`;
+  document.querySelector("#profile-name").textContent = user.name;
+  document.querySelector("#avatar").textContent = user.name.slice(0, 1);
+  document.querySelector("#sidebar-user-name").textContent = user.name;
+  document.querySelector("#sidebar-user-plan").textContent = user.plan || "免費版";
+}
+
+function moduleGrid(items) {
+  return `<div class="module-grid">${items.map((item) => `<article class="module-card"><div class="module-card-top"><span class="module-icon">${item.icon}</span><span class="tag">${esc(item.tag || "功能")}</span></div><h3>${esc(item.title)}</h3><p>${esc(item.detail)}</p></article>`).join("")}</div>`;
+}
+
+function quickActionGrid() {
+  return `<div class="quick-grid">${quickActions.map((item) => `<button class="quick-card" data-message="${esc(item.message)}"><span>${item.icon}</span><strong>${esc(item.title)}</strong><small>${esc(item.detail)}</small></button>`).join("")}</div>`;
+}
+
+function bindQuickCards() {
+  document.querySelectorAll(".quick-card").forEach((button) => {
+    button.onclick = () => notify(button.dataset.message || "功能入口已準備");
+  });
+}
+
 async function renderTasks() {
   const data = await api("/api/dashboard");
   state.cache.dashboard = data;
-  document.querySelector("#credit-pill").textContent = `蝦飼料：${data.user.credits.toLocaleString()}`;
-  document.querySelector("#profile-name").textContent = data.user.name;
-  document.querySelector("#avatar").textContent = data.user.name.slice(0, 1);
+  syncShell(data.user);
   root.innerHTML = layout("蝦任務", "把想完成的結果交代給蝦妹，工作區會留下每一步紀錄。", `<button class="button button-primary" id="new-task">＋ 新增任務</button>`) +
     `<div class="dashboard-grid">${stat("全部任務", data.stats.totalTasks, "累積任務")}${stat("執行中", data.stats.runningTasks, "正在處理")}${stat("已安裝技能", data.stats.installedSkills, "可直接使用")}${stat("啟用排程", data.stats.schedules, "自動執行中")}</div>` +
+    `<section class="panel launch-panel"><div class="panel-heading"><h2>常用任務啟動台</h2><span class="tag">研究後補齊</span></div>${quickActionGrid()}</section>` +
     `<div class="content-grid"><section class="panel"><div class="panel-heading"><h2>最近任務</h2><button class="text-button" id="refresh-tasks">重新整理</button></div>${data.recentTasks.map((task) => `<div class="task-row"><div><div class="task-title">${esc(task.title)}</div><div class="task-meta">${esc(task.model)} · ${new Date(task.createdAt).toLocaleString("zh-TW", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })}</div></div><span class="status status-${task.status}">${statusLabel(task.status)}</span></div>`).join("")}</section><section class="panel"><div class="panel-heading"><h2>活動紀錄</h2></div><div class="panel-body">${data.activity.map((item) => `<div class="activity-item"><span class="activity-dot"></span><div>${esc(item.text)}<small>${esc(item.time)}</small></div></div>`).join("")}</div></section></div>`;
   document.querySelector("#new-task").onclick = showTaskModal;
   document.querySelector("#refresh-tasks").onclick = () => renderTasks().catch(handleError);
+  bindQuickCards();
 }
 
 async function renderSkills() {
@@ -163,14 +226,23 @@ async function renderSchedules() {
 
 async function renderFiles() {
   const data = await api("/api/files");
-  root.innerHTML = layout("龍蝦小包包", "集中查看這個工作區的報告、簡報、文件與素材。", `<button class="button button-primary" id="new-file">＋ 登錄檔案</button>`) + `<section class="panel table-wrap"><table class="data-table"><thead><tr><th>檔案</th><th>類型</th><th>大小</th><th>更新日期</th><th>操作</th></tr></thead><tbody>${data.files.map((file) => `<tr><td><strong>${esc(file.name)}</strong></td><td>${esc(file.type)}</td><td>${esc(file.size)}</td><td>${esc(file.updatedAt)}</td><td><button class="text-button">查看</button></td></tr>`).join("")}</tbody></table></section>`;
+  root.innerHTML = layout("龍蝦小包包", "集中查看這個工作區的報告、簡報、文件、圖片、影片與素材來源。", `<button class="button button-primary" id="new-file">＋ 登錄檔案</button>`) +
+    `<div class="dashboard-grid">${stat("文件", "PDF / DOCX", "合約與報告")}${stat("影音", "MP4 / MP3", "成片與配音")}${stat("圖片", "PNG / JPG", "海報與素材")}${stat("資料", "XLSX / CSV", "表格與名單")}</div>` +
+    `<section class="panel source-panel"><div class="panel-heading"><h2>可接入資料來源</h2><span class="tag">Drive / Notion / Sheets</span></div>${moduleGrid([
+      { icon: "☁️", title: "Google Drive", detail: "存放任務成品、素材與公開交付檔案。", tag: "雲端" },
+      { icon: "📄", title: "Notion 知識庫", detail: "整理 SOP、腳本、客戶問答與教學資料。", tag: "知識" },
+      { icon: "📊", title: "Google Sheets", detail: "接住報表、名單、用量與商品資料。", tag: "表格" }
+    ])}</section>` +
+    `<section class="panel table-wrap"><table class="data-table"><thead><tr><th>檔案</th><th>類型</th><th>大小</th><th>更新日期</th><th>操作</th></tr></thead><tbody>${data.files.map((file) => `<tr><td><strong>${esc(file.name)}</strong></td><td>${esc(file.type)}</td><td>${esc(file.size)}</td><td>${esc(file.updatedAt)}</td><td><button class="text-button" onclick="notify('檔案預覽入口已準備')">查看</button></td></tr>`).join("")}</tbody></table></section>`;
   document.querySelector("#new-file").onclick = showFileModal;
 }
 
 async function renderCredits() {
   const data = await api("/api/credits");
   const total = data.usage.reduce((sum, item) => sum + item.value, 0);
-  root.innerHTML = layout("蝦飼料", "透明查看點數餘額與近期使用方向。") + `<div class="dashboard-grid">${stat("目前餘額", data.balance.toLocaleString(), "點")}${stat("本月使用", total.toLocaleString(), "點")}${stat("方案", "專業版", "每月自動更新")}${stat("用量趨勢", "穩定", "近 30 天")}</div><section class="panel"><div class="panel-heading"><h2>使用分布</h2><span class="tag">近 30 天</span></div><div class="panel-body">${data.usage.map((item) => `<div class="list-row" style="padding:14px 0"><div><strong>${esc(item.label)}</strong><div class="task-meta">${item.value.toLocaleString()} 點</div></div><div style="width:45%"><div class="progress-track"><div class="progress-bar" style="width:${Math.round(item.value / total * 100)}%"></div></div></div></div>`).join("")}</div></section>`;
+  root.innerHTML = layout("蝦飼料", "透明查看點數餘額、充值方案與近期使用方向。", `<button class="button button-primary" onclick="notify('充值流程已準備')">＋ 充值積分</button>`) +
+    `<div class="dashboard-grid">${stat("目前餘額", data.balance.toLocaleString(), "點")}${stat("本月使用", total.toLocaleString(), "點")}${stat("方案", "專業版", "每月自動更新")}${stat("用量趨勢", "穩定", "近 30 天")}</div>` +
+    `<div class="content-grid"><section class="panel"><div class="panel-heading"><h2>使用分布</h2><span class="tag">近 30 天</span></div><div class="panel-body">${data.usage.map((item) => `<div class="list-row" style="padding:14px 0"><div><strong>${esc(item.label)}</strong><div class="task-meta">${item.value.toLocaleString()} 點</div></div><div style="width:45%"><div class="progress-track"><div class="progress-bar" style="width:${Math.round(item.value / total * 100)}%"></div></div></div></div>`).join("")}</div></section><section class="panel"><div class="panel-heading"><h2>充值包</h2><span class="tag">展示版</span></div><div class="panel-body"><div class="credit-pack"><strong>5,000 點</strong><button class="text-button" onclick="notify('5,000 點方案已選取')">選取</button></div><div class="credit-pack"><strong>20,000 點</strong><button class="text-button" onclick="notify('20,000 點方案已選取')">選取</button></div><div class="credit-pack"><strong>企業自訂</strong><button class="text-button" onclick="notify('企業點數洽詢已準備')">洽詢</button></div></div></section></div>`;
 }
 
 function genericView(title, subtitle, body) {
@@ -246,14 +318,45 @@ function handleError(error) {
 }
 
 function showLogin() {
-  modal("登入藍星蝦妹", `<div class="field"><label>電子郵件</label><input id="login-email" type="email" placeholder="your@email.com" /></div><div class="field"><label>密碼</label><input id="login-password" type="password" placeholder="至少 8 個字元" /></div><div class="modal-actions"><button class="button button-primary" id="submit-login">登入</button></div><p style="color:var(--ink-soft);font-size:12px;margin:14px 0 0">啟動服務時可用 APP_ADMIN_EMAIL 與 APP_ADMIN_PASSWORD 設定帳號。</p>`, (body) => {
-    body.querySelector("#submit-login").onclick = async () => {
+  modalRoot.innerHTML = `
+    <div class="login-screen">
+      <section class="login-card" aria-label="登入藍星蝦妹">
+        <div class="login-logo-panel">
+          <div class="login-logo-rings"><span>🦐</span></div>
+          <div class="login-logo-title">藍星蝦妹</div>
+          <div class="login-logo-subtitle">BLUESTAR CLAW</div>
+        </div>
+        <form class="login-form" id="login-form">
+          <h1>登入</h1>
+          <div class="login-field">
+            <label for="login-email">電子郵件</label>
+            <input id="login-email" type="email" autocomplete="email" placeholder="your@email.com" required />
+          </div>
+          <div class="login-field">
+            <label for="login-password">密碼</label>
+            <input id="login-password" type="password" autocomplete="current-password" placeholder="至少 8 個字元" required minlength="8" />
+          </div>
+          <button class="login-primary" id="submit-login" type="submit">登入</button>
+          <div class="login-divider"><span></span><small>或</small><span></span></div>
+          <button class="login-provider" type="button" id="google-login"><strong>G</strong><span>用 Google 登入</span></button>
+          <button class="login-provider login-provider-accent" type="button" id="face-login"><strong>🔐</strong><span>用 FaceID 登入</span></button>
+          <button class="login-link" type="button" id="forgot-password">忘記密碼？</button>
+          <button class="login-register" type="button" id="register-account">還沒有帳號？註冊</button>
+        </form>
+      </section>
+    </div>`;
+  const form = modalRoot.querySelector("#login-form");
+  form.onsubmit = async (event) => {
+    event.preventDefault();
       try {
-        const data = await api("/api/auth/login", { method: "POST", body: JSON.stringify({ email: body.querySelector("#login-email").value, password: body.querySelector("#login-password").value }) });
+        const data = await api("/api/auth/login", { method: "POST", body: JSON.stringify({ email: form.querySelector("#login-email").value, password: form.querySelector("#login-password").value }) });
         state.token = data.token; localStorage.setItem("bluestar_token", state.token); modalRoot.innerHTML = ""; notify("登入成功"); renderView(state.view);
       } catch (error) { notify(error.message); }
-    };
-  });
+  };
+  modalRoot.querySelector("#google-login").onclick = () => notify("Google 登入入口已準備");
+  modalRoot.querySelector("#face-login").onclick = () => notify("FaceID 登入入口已準備");
+  modalRoot.querySelector("#forgot-password").onclick = () => notify("密碼重設入口已準備");
+  modalRoot.querySelector("#register-account").onclick = () => notify("註冊入口已準備");
 }
 
 document.querySelectorAll(".nav-item").forEach((button) => button.onclick = () => {
@@ -266,10 +369,6 @@ document.querySelector("#profile-button").onclick = () => renderView("settings")
 
 async function boot() {
   try {
-    if (staticMode && staticData && !state.token) {
-      state.token = "static-demo-token";
-      localStorage.setItem("bluestar_token", state.token);
-    }
     if (!state.token) return showLogin();
     await api("/api/auth/me");
     await renderTasks();

@@ -246,14 +246,45 @@ function handleError(error) {
 }
 
 function showLogin() {
-  modal("登入藍星蝦妹", `<div class="field"><label>電子郵件</label><input id="login-email" type="email" placeholder="your@email.com" /></div><div class="field"><label>密碼</label><input id="login-password" type="password" placeholder="至少 8 個字元" /></div><div class="modal-actions"><button class="button button-primary" id="submit-login">登入</button></div><p style="color:var(--ink-soft);font-size:12px;margin:14px 0 0">啟動服務時可用 APP_ADMIN_EMAIL 與 APP_ADMIN_PASSWORD 設定帳號。</p>`, (body) => {
-    body.querySelector("#submit-login").onclick = async () => {
+  modalRoot.innerHTML = `
+    <div class="login-screen">
+      <section class="login-card" aria-label="登入藍星蝦妹">
+        <div class="login-logo-panel">
+          <div class="login-logo-rings"><span>🦐</span></div>
+          <div class="login-logo-title">藍星蝦妹</div>
+          <div class="login-logo-subtitle">BLUESTAR CLAW</div>
+        </div>
+        <form class="login-form" id="login-form">
+          <h1>登入</h1>
+          <div class="login-field">
+            <label for="login-email">電子郵件</label>
+            <input id="login-email" type="email" autocomplete="email" placeholder="your@email.com" required />
+          </div>
+          <div class="login-field">
+            <label for="login-password">密碼</label>
+            <input id="login-password" type="password" autocomplete="current-password" placeholder="至少 8 個字元" required minlength="8" />
+          </div>
+          <button class="login-primary" id="submit-login" type="submit">登入</button>
+          <div class="login-divider"><span></span><small>或</small><span></span></div>
+          <button class="login-provider" type="button" id="google-login"><strong>G</strong><span>用 Google 登入</span></button>
+          <button class="login-provider login-provider-accent" type="button" id="face-login"><strong>🔐</strong><span>用 FaceID 登入</span></button>
+          <button class="login-link" type="button" id="forgot-password">忘記密碼？</button>
+          <button class="login-register" type="button" id="register-account">還沒有帳號？註冊</button>
+        </form>
+      </section>
+    </div>`;
+  const form = modalRoot.querySelector("#login-form");
+  form.onsubmit = async (event) => {
+    event.preventDefault();
       try {
-        const data = await api("/api/auth/login", { method: "POST", body: JSON.stringify({ email: body.querySelector("#login-email").value, password: body.querySelector("#login-password").value }) });
+        const data = await api("/api/auth/login", { method: "POST", body: JSON.stringify({ email: form.querySelector("#login-email").value, password: form.querySelector("#login-password").value }) });
         state.token = data.token; localStorage.setItem("bluestar_token", state.token); modalRoot.innerHTML = ""; notify("登入成功"); renderView(state.view);
       } catch (error) { notify(error.message); }
-    };
-  });
+  };
+  modalRoot.querySelector("#google-login").onclick = () => notify("Google 登入入口已準備");
+  modalRoot.querySelector("#face-login").onclick = () => notify("FaceID 登入入口已準備");
+  modalRoot.querySelector("#forgot-password").onclick = () => notify("密碼重設入口已準備");
+  modalRoot.querySelector("#register-account").onclick = () => notify("註冊入口已準備");
 }
 
 document.querySelectorAll(".nav-item").forEach((button) => button.onclick = () => {
@@ -266,10 +297,6 @@ document.querySelector("#profile-button").onclick = () => renderView("settings")
 
 async function boot() {
   try {
-    if (staticMode && staticData && !state.token) {
-      state.token = "static-demo-token";
-      localStorage.setItem("bluestar_token", state.token);
-    }
     if (!state.token) return showLogin();
     await api("/api/auth/me");
     await renderTasks();
